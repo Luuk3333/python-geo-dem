@@ -1,5 +1,5 @@
 import zipfile
-import urllib2
+import urllib.request
 import sys
 import getopt
 import os
@@ -10,15 +10,16 @@ def download_file(url, file_name):
     a progress bar during download
     Source: http://stackoverflow.com/a/22776
     """
+    request = urllib.request.Request(url)
+
     try:
-        u = urllib2.urlopen(url)
-    except urllib2.HTTPError:
-        print 'File not found at: %s' % url
+        u = urllib.request.urlopen(request)
+    except urllib.error.HTTPError:
+        print('File not found at: %s' % url)
         sys.exit(2)
 
-    meta = u.info()
-    file_size = int(meta.getheaders("Content-Length")[0])
-    print "Downloading: %s Bytes: %s" % (file_name, file_size)
+    file_size = int(u.getheader('Content-Length'))
+    print("Downloading: %s Bytes: %s" % (file_name, file_size))
 
     f = open(file_name, 'wb')
     file_size_dl = 0
@@ -32,11 +33,11 @@ def download_file(url, file_name):
         f.write(buffer)
         status = r"%10d  [%3.2f%%]" % (file_size_dl, file_size_dl * 100. / file_size)
         status = status + chr(8)*(len(status)+1)
-        print status,
+        print('{}\r'.format(status), end='')
 
     f.close()
 
-def get_args(argv, source_url=None, header_url=None, dem_files=None, target=None):
+def get_args(argv, source_url=None, header_url=None, dem_files=None, target='store'):
     """
     Parases any custom arguments from the command line, reverting to the the default if none passed
     Returns a (source_url, header_url, dem_files, target) pair of arguments.
@@ -45,11 +46,11 @@ def get_args(argv, source_url=None, header_url=None, dem_files=None, target=None
     try:
         options, args = getopt.getopt(argv, 's:h:d:t:', ['source-url=','header-url=','dem-files=','target='])
     except getopt.GetoptError:
-        print 'download_data.py -s <sourceurl> -h <headerurl> -d <demfiles> -t <target>'
-        print '  -s, --source-url:   The root URI folder that contains the dem files'
-        print '  -h, --header-url:   The root URI folder that contains the dem files'
-        print '  -d, --dem-files:    A comman separated list of DEM files that we wish to download (e.g. a10g,f10h)'
-        print '  -t, --target:       The target folder to download source and header files into'
+        print('download_data.py -s <sourceurl> -h <headerurl> -d <demfiles> -t <target>')
+        print('  -s, --source-url:   The root URI folder that contains the dem files')
+        print('  -h, --header-url:   The root URI folder that contains the dem files')
+        print('  -d, --dem-files:    A comman separated list of DEM files that we wish to download (e.g. a10g,f10h)')
+        print('  -t, --target:       The target folder to download source and header files into')
         sys.exit(2)
 
     for opt, val in options:
@@ -62,7 +63,7 @@ def get_args(argv, source_url=None, header_url=None, dem_files=None, target=None
         elif opt in ['-t', '--target']:
             target = val
             if not os.path.isdir(target):
-                print '--target path does not exist or is not a valid folder: %s' % target
+                print('--target path does not exist or is not a valid folder: %s' % target)
                 sys.exit(2)
 
     return (source_url, header_url, dem_files, target)
@@ -89,7 +90,7 @@ def download_and_extract(source_url, header_url, dem_files, target):
         try:
             zf = zipfile.ZipFile(source_file_path, 'r')
         except zipfile.BadZipfile:
-            print 'Invalid zip file provided at: %s' % url
+            print('Invalid zip file provided at: %s' % url)
             sys.exit(2)
         else:
             zf.extractall(target)
@@ -101,7 +102,7 @@ def download_and_extract(source_url, header_url, dem_files, target):
 
 
 if __name__ == '__main__':
-    print """
+    print("""
                                                                                 
                                                                                 
                                                                                 
@@ -144,7 +145,7 @@ if __name__ == '__main__':
                 Source: National Geophysical Data Center
                 URL: http://www.ngdc.noaa.gov/mgg/topo/gltiles.html
                                                                                 
-    """
+    """)
 
     args = get_args(sys.argv[1:],
         source_url='http://www.ngdc.noaa.gov/mgg/topo/DATATILES/elev/',

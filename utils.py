@@ -5,6 +5,10 @@ from datetime import datetime
 import os
 import sys
 
+# Use exceptions instead of error messages
+# "By default, the GDAL and OGR Python bindings do not raise exceptions when errors occur. Instead they return an error value such as None and write an error message to sys.stdout."
+# - https://gdal.org/api/python_gotchas.html
+gdal.UseExceptions()
 
 def altitude_at_raster_range(x1, y1, x2, y2, dataset):
     """
@@ -80,7 +84,7 @@ def geographic_coordinates_to_raster_points(lon, lat, dataset=None):
     transform = dataset.GetGeoTransform()
 
     # invert transformation so we can convert lat/lon to x/y
-    success, transform_inverse = gdal.InvGeoTransform(transform)
+    transform_inverse = gdal.InvGeoTransform(transform)
 
     # apply transformation
     x, y = gdal.ApplyGeoTransform(transform_inverse, lon, lat)
@@ -104,7 +108,7 @@ def get_dem(lon, lat, dem_paths=None):
 
         try:
             altitude_at_raster_point(x, y, dataset)
-        except struct.error:
+        except RuntimeError:
             continue
         else:
             return dem_path
@@ -126,6 +130,6 @@ def default_dem_paths():
     """
 
     dem_files='a10g,b10g,c10g,d10g,e10g,f10g,g10g,h10g,i10g,j10g,k10g,l10g,m10g,n10g,o10g,p10g'
-    dem_paths = [os.path.join('store', dem_file) for dem_file in dem_files.split(',')]
+    dem_paths = [os.path.join('store/', dem_file) for dem_file in dem_files.split(',')]
     return dem_paths
 

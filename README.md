@@ -23,14 +23,14 @@ straightforward.
 To get the altitude (in meters) at a given longitude/latitude point:
 
     from geodem.utils import altitude_at_geographic_coordinates
-    altitude = altitude_at_geographic_coordinates(lon=-122, 50)
-    print altitude # => 951
+    altitude = altitude_at_geographic_coordinates(lat=50, lon=-122)
+    print(altitude) # => 951
 
 To get the altitude for a given range
 
-    from geodem.utils import altitude_at_geographic_coordinates
+    from geodem.utils import altitude_at_geographic_range
     altitudes = altitude_at_geographic_range(lon1=-122, lat1=50, lon2=-122 - 0.01, lat2=50 - 0.01)
-    print altitudes # => [(938, 681, 951), (1163, 728, 727)]
+    print(altitudes) # => [(938, 681, 951), (1163, 728, 727)]
 
 
  
